@@ -1,0 +1,272 @@
+* {
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #FFF6FA;
+}
+
+/*------------------header--------------------*/
+header {
+  width: 100%;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  /* 只管把 nav 推到右边 */
+  background-image: url('./img/Dots.svg');
+  position: relative;
+  padding-right: 8vw;
+  /* 给 nav 保持右边距 */
+  box-sizing: border-box;
+  /* 避免撑开 */
+}
+
+.header-logo {
+  position: fixed;
+  top: 0;
+  /* 距离顶部位置，可以自己调 */
+  left: 4vw;
+  /* 距离左边位置，可以自己调 */
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 89px;
+  height: 93px;
+  cursor: pointer;
+}
+
+.header-logo img {
+  width: 83px;
+  height: 46px;
+  animation: float 2.5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.nav-wrap {
+  display: flex;
+  align-items: center;
+  height: 45px;
+}
+
+.nav-wrap ul {
+
+  height: 45px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  list-style: none;
+}
+
+.nav-wrap ul li {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  cursor: pointer;
+  margin: 0 16px;
+}
+
+.nav-wrap ul li a {
+  text-decoration: none;
+  color: #333;
+  margin-left: 7px;
+  font-size: 18px;
+  font-family: "Noto Serif SC", serif;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  line-height: 0.9em;
+  transition: color 0.2s ease-in-out;
+}
+
+.nav-wrap ul li a span {
+  font-family: "Almendra", serif;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0em;
+}
+
+.nav-wrap ul li a:hover {
+  color: #956BAC;
+}
+
+/*-----illustration-------*/
+.illustration {
+  padding-bottom: 20vh;
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #FFF6FA;
+  overflow: hidden;
+}
+
+.illustration-wrap {
+  width: 80%;
+  margin-top: 5vh;
+}
+
+.heart-bg {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  top: 10vh;
+  object-fit: contain;
+  pointer-events: none;
+  will-change: transform;
+  /* 提升滚动性能 */
+  z-index: -1;
+  /* 若需在内容后面显示 */
+}
+
+/* 用户偏好“减少动效”时，禁用视差 */
+@media (prefers-reduced-motion: reduce) {
+  .heart-bg {
+    transform: none !important;
+  }
+}
+
+.gallery {
+  columns: 3;
+  /*段組みの数*/
+  padding: 0 10px;
+  /*ギャラリー左右に余白をつける*/
+  margin: 0;
+}
+
+.gallery li {
+  margin-bottom: 20px;
+  /*各画像下に余白をつける*/
+  list-style: none;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+/*ギャラリー内のイメージは横幅100%にする*/
+.gallery img {
+  width: 100%;
+  height: auto;
+  transition: transform 0.3s ease-in-out;
+  vertical-align: bottom;
+  /*画像の下にできる余白を削除*/
+}
+
+.gallery img:hover {
+  transform: scale(1.1);
+}
+
+/*　横幅900px以下の段組み設定　*/
+@media only screen and (max-width: 900px) {
+  .gallery {
+    columns: 3;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .gallery {
+    columns: 2;
+  }
+}
+
+.illustration-btn {
+  margin-top: 8vh;
+  width: 240px;
+  height: 64px;
+  border-radius: 43px;
+  text-align: center;
+  background-color: #E85AB5;
+  box-shadow: 0 6px 14px rgba(232, 90, 181, .35);
+  transition: transform .15s ease, filter .2s ease;
+  cursor: pointer;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.illustration-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.illustration-btn:active {
+  transform: translateY(0);
+}
+
+@media only screen and (max-width:500px) {
+  header {
+    padding-right: 10px;
+    /* 给 nav 保持右边距 */
+  }
+
+  .nav-wrap {
+    display: flex;
+    align-items: center;
+    height: 45px;
+  }
+
+  .nav-wrap ul {
+    height: 45px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    list-style: none;
+  }
+
+  .nav-wrap ul li {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    cursor: pointer;
+    margin: 0 12px;
+  }
+
+  .nav-wrap ul li a {
+    text-decoration: none;
+    color: #333;
+    margin-left: 6px;
+    font-size: 14px;
+    font-family: "Noto Serif SC", serif;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    line-height: 0.9em;
+    transition: color 0.2s ease-in-out;
+  }
+
+  .nav-wrap ul li a span {
+    font-size: 8px;
+    font-weight: 400;
+    letter-spacing: 0em;
+  }
+
+  .heart-icon {
+    width: 15px;
+  }
+
+  .header-logo img {
+    width: 62px;
+    height: 32px;
+  }
+}
