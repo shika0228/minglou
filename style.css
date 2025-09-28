@@ -863,8 +863,11 @@ footer {
   }
 
   header {
-    padding-right: 10px;
+    padding-right:0;
     /* 给 nav 保持右边距 */
+    display:flex;
+    align-items:center;
+    justify-content:center;
   }
 
   .nav-wrap {
@@ -924,7 +927,7 @@ footer {
 
   /*------------------profile-------------------*/
   .profile {
-    height: 100vh;
+    height:90vh;
     border-radius: 25px;
     margin-top: 50px;
     position: relative;
@@ -935,6 +938,7 @@ footer {
   }
 
   .profile-img {
+    margin-top:5vh;
     width: 90%;
     min-width: 300px;
     max-height: 95vh;
@@ -972,8 +976,7 @@ footer {
   }
 
   .header-logo img {
-    width: 62px;
-    height: 32px;
+  display:none;
   }
 
   .main-copy {
