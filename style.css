@@ -892,7 +892,7 @@ footer {
   }
 
   .profile-img-text {
-    width: 13%;
+    width:10%;
     margin-left: 0;
     margin-right: 70%;
     margin-bottom: 53vh;
@@ -912,7 +912,7 @@ footer {
 
   .profile-text-wrap {
     padding: 0;
-    width: 100%;
+    width:70%;
     min-width: 300px;
     margin-right: 0;
   }
@@ -931,7 +931,7 @@ footer {
   .carousel .carousel-wrap {
     position: absolute;
     width:50%;
-    max-width:500px;
+    max-width:400px;
   }
   .illustration-wrap {
     width: 80%;

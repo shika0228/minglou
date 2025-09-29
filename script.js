@@ -215,9 +215,9 @@ function initCostumeCarouselDrag() {
   let startT = 0;
   let dragged = false;
 
-  const CLICK_CANCEL_PX = 6;
+  const CLICK_CANCEL_PX = 12;
   const SWIPE_THRESH_PX = Math.max(48, (api?.stepX || 260) * 0.35);
-  const FLICK_TIME_MS   = 220;
+  const FLICK_TIME_MS   = 180;
 
   function onPointerDown(e) {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
@@ -280,4 +280,62 @@ function initCostumeCarouselDrag() {
   // 防止图片被浏览器“拖一拖就飞走”
   root.querySelectorAll('img').forEach(img => img.setAttribute('draggable', 'false'));
 }
+
+// === Protective guard: let .carousel-controls clicks bypass drag; cancel clicks after real drags ===
+(function(){
+  const root = document.getElementById('costume-carousel');
+  if (!root) return;
+  // Ensure controls exist reference if in DOM
+  // 1) Never start drag when interacting with controls
+  root.addEventListener('pointerdown', function(e){
+    if (e.target && e.target.closest && e.target.closest('.carousel-controls')) {
+      // Stop propagation so any root-level pointerdown drag handlers won't run
+      e.stopPropagation();
+      // Do NOT preventDefault so buttons remain clickable
+      return;
+    }
+  }, true); // capture: before drag handlers
+
+  // 2) Track whether a real drag occurred to cancel the subsequent synthetic click
+  const CANCEL_PX = 12;
+  let startX = 0, startY = 0, maxDx = 0, maxDy = 0, down = false;
+  let justDragged = false;
+
+  root.addEventListener('pointerdown', function(e){
+    if (e.target && e.target.closest && e.target.closest('.carousel-controls')) return;
+    down = true;
+    justDragged = false;
+    startX = e.clientX || 0;
+    startY = e.clientY || 0;
+    maxDx = 0; maxDy = 0;
+  }, true);
+
+  root.addEventListener('pointermove', function(e){
+    if (!down) return;
+    const dx = Math.abs((e.clientX||0) - startX);
+    const dy = Math.abs((e.clientY||0) - startY);
+    if (dx > maxDx) maxDx = dx;
+    if (dy > maxDy) maxDy = dy;
+  }, true);
+
+  root.addEventListener('pointerup', function(e){
+    if (!down) return;
+    down = false;
+    if (Math.max(maxDx, maxDy) >= CANCEL_PX) {
+      justDragged = true;
+      setTimeout(()=>{ justDragged = false; }, 0);
+    }
+  }, true);
+
+  // 3) Click-capture: never intercept clicks on controls; cancel clicks right after a drag
+  root.addEventListener('click', function(e){
+    if (e.target && e.target.closest && e.target.closest('.carousel-controls')) return;
+    if (justDragged) {
+      e.preventDefault();
+      e.stopPropagation();
+      justDragged = false;
+    }
+  }, true);
+})();
+// === End protective guard ===
 
