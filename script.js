@@ -15,6 +15,7 @@ window.onload = function() {
 
     // ====== 重要：所有依赖滚动位置的动画在显示后再初始化 ======
     initCostumeCarousel();
+    initCostumeCarouselDrag();
     initHeartParallax();
     initCatScroll();
 
@@ -32,6 +33,9 @@ function initCostumeCarousel() {
   if (!root) return;
 
   const items     = Array.from(root.querySelectorAll('.carousel-wrap'));
+  // 禁止原生图片拖拽
+  items.forEach(el => el.querySelector('img')?.setAttribute('draggable', 'false'));
+
   const prevBtn   = root.querySelector('.nav-btn.prev');
   const nextBtn   = root.querySelector('.nav-btn.next');
 
@@ -41,6 +45,8 @@ function initCostumeCarousel() {
   const maxShow   = 4;
   const blurUnit  = 0.4;
   const rotUnit   = -2.5;
+
+  let   dragX    = 0; // 实时拖拽位移（像素）
 
   const scaleLevels = { 0: 1.5, 1: 0.9, 2: 0.8, 3: 0.7, 4: 0.7 };
   const opacityLevels = { 0: 1.0, 1: 0.3, 2: 0.15, 3: 0.05, 4: 0.0 };
@@ -65,7 +71,7 @@ function initCostumeCarousel() {
         el.style.zIndex    = `${50 - ar}`;
         return;
       }
-      const x   = r * stepX;
+      const x   = r * stepX + dragX;
       const sc  = scaleLevels[ar];
       const op  = opacityLevels[ar];
       const blur= ar * blurUnit;
@@ -83,6 +89,9 @@ function initCostumeCarousel() {
   }
   function go(delta = 1) { index = (index + delta + N) % N; layout(index, true); }
 
+  function setDragX(v, animate=false){ dragX = v; layout(index, animate); }
+  function snap(delta){ dragX = 0; index = (index + delta + N) % N; layout(index, true); }
+
   let timer = null;
   const AUTOPLAY_MS = 2000; // 改为 3000 即 3 秒
   function start(){ if (!timer) timer = setInterval(()=>go(+1), AUTOPLAY_MS); }
@@ -98,7 +107,18 @@ function initCostumeCarousel() {
   layout(index, false);
   start();
   window.addEventListener('resize', () => layout(index, false));
+  // 暴露给拖拽层使用的简易 API
+  root._carouselAPI = {
+    setDragX,
+    snap,
+    go,
+    stop,
+    start,
+    getIndex: () => index,
+    stepX
+  };
 }
+
 
 
 // ====== Heart Parallax（安全版：只管理自身触发器，不误杀其它动画） ======
@@ -171,3 +191,93 @@ function initCatScroll(){
     }
   );
 }
+
+
+/**
+ * Enable drag/swipe to navigate the #costume-carousel (mouse + touch + pen).
+ * It does NOT change your existing layout/animation logic; it simply maps a horizontal drag
+ * into clicking the prev/next buttons with sensible thresholds and velocity.
+ */
+
+function initCostumeCarouselDrag() {
+  const root  = document.getElementById('costume-carousel');
+  if (!root) return;
+
+  const api = root._carouselAPI;
+  const prevBtn = root.querySelector('.nav-btn.prev');
+  const nextBtn = root.querySelector('.nav-btn.next');
+  if (!prevBtn || !nextBtn) return;
+
+  let isDown = false;
+  let startX = 0;
+  let baseX  = 0;
+  let lastX  = 0;
+  let startT = 0;
+  let dragged = false;
+
+  const CLICK_CANCEL_PX = 6;
+  const SWIPE_THRESH_PX = Math.max(48, (api?.stepX || 260) * 0.35);
+  const FLICK_TIME_MS   = 220;
+
+  function onPointerDown(e) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    isDown = true;
+    dragged = false;
+    startX = lastX = e.clientX;
+    baseX  = 0;
+    startT = performance.now();
+    root.classList.add('carousel-dragging');
+    root.dispatchEvent(new Event('mouseenter')); // 暂停自动播
+    root.setPointerCapture?.(e.pointerId);
+  }
+
+  function onPointerMove(e) {
+    if (!isDown) return;
+    lastX = e.clientX;
+    const dx = lastX - startX + baseX;
+    if (Math.abs(dx) > CLICK_CANCEL_PX) dragged = true;
+    if (api && typeof api.setDragX === 'function') {
+      api.setDragX(dx, false); // 实时跟随（无过渡）
+    }
+  }
+
+  function onPointerUp(e) {
+    if (!isDown) return;
+    isDown = false;
+    root.classList.remove('carousel-dragging');
+    root.releasePointerCapture?.(e.pointerId);
+
+    const dx  = lastX - startX + baseX;
+    const dt  = performance.now() - startT;
+    const adx = Math.abs(dx);
+
+    if (adx > SWIPE_THRESH_PX || (dt < FLICK_TIME_MS && adx > CLICK_CANCEL_PX)) {
+      if (dx < 0) {
+        // 左划 -> 下一张
+        if (api && typeof api.snap === 'function') api.snap(+1);
+        else nextBtn.click();
+      } else {
+        // 右划 -> 上一张
+        if (api && typeof api.snap === 'function') api.snap(-1);
+        else prevBtn.click();
+      }
+    } else {
+      // 回弹到原位
+      if (api && typeof api.setDragX === 'function') api.setDragX(0, true);
+    }
+    root.dispatchEvent(new Event('mouseleave')); // 恢复自动播
+  }
+
+  root.addEventListener('pointerdown', onPointerDown, { passive: true });
+  window.addEventListener('pointermove', onPointerMove, { passive: true });
+  window.addEventListener('pointerup', onPointerUp, { passive: true });
+  window.addEventListener('pointercancel', onPointerUp, { passive: true });
+
+  root.addEventListener('click', function(e){
+    if (dragged) { e.preventDefault(); e.stopPropagation(); dragged = false; }
+  }, true);
+
+  // 防止图片被浏览器“拖一拖就飞走”
+  root.querySelectorAll('img').forEach(img => img.setAttribute('draggable', 'false'));
+}
+
