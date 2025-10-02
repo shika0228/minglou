@@ -13,13 +13,11 @@ window.onload = function() {
     header.style.display = 'flex';   // 这两行会改变布局高度:contentReference[oaicite:2]{index=2}
     main.style.display   = 'block';
 
-    // ====== 重要：所有依赖滚动位置的动画在显示后再初始化 ======
     initCostumeCarousel();
     initCostumeCarouselDrag();
     initHeartParallax();
     initCatScroll();
 
-    // 立刻刷新一次，确保 start/end 正确
     if (window.ScrollTrigger) {
       ScrollTrigger.refresh();
     }
@@ -46,7 +44,7 @@ function initCostumeCarousel() {
   const blurUnit  = 0.4;
   const rotUnit   = -2.5;
 
-  let   dragX    = 0; // 实时拖拽位移（像素）
+  let   dragX    = 0; 
 
   const scaleLevels = { 0: 1.5, 1: 0.9, 2: 0.8, 3: 0.7, 4: 0.7 };
   const opacityLevels = { 0: 1.0, 1: 0.3, 2: 0.15, 3: 0.05, 4: 0.0 };
@@ -107,7 +105,6 @@ function initCostumeCarousel() {
   layout(index, false);
   start();
   window.addEventListener('resize', () => layout(index, false));
-  // 暴露给拖拽层使用的简易 API
   root._carouselAPI = {
     setDragX,
     snap,
@@ -192,12 +189,6 @@ function initCatScroll(){
   );
 }
 
-
-/**
- * Enable drag/swipe to navigate the #costume-carousel (mouse + touch + pen).
- * It does NOT change your existing layout/animation logic; it simply maps a horizontal drag
- * into clicking the prev/next buttons with sensible thresholds and velocity.
- */
 
 function initCostumeCarouselDrag() {
   const root  = document.getElementById('costume-carousel');
@@ -338,4 +329,57 @@ function initCostumeCarouselDrag() {
   }, true);
 })();
 // === End protective guard ===
+// === 只在 #illustration 出现时显示 .top-btn；返回顶端后再隐藏 ===
+document.addEventListener('DOMContentLoaded', () => {
+  const topBtn = document.querySelector('.top-btn');
+  const illu   = document.getElementById('illustration');
+  if (!topBtn || !illu) return;
+
+  let isReturning = false; // 点击回顶过程中的“锁”，避免中途被隐藏
+
+  // 点击：平滑回到顶部 & 到顶后淡出
+  topBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    isReturning = true;
+    topBtn.classList.add('visible');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    const checkScroll = setInterval(() => {
+      if (window.scrollY <= 5) {
+        clearInterval(checkScroll);
+        isReturning = false;
+        topBtn.classList.remove('visible'); // 到顶后淡出
+      }
+    }, 120);
+  });
+
+  // 只在 #illustration 进入视口时显示按钮，离开时隐藏
+  const io = new IntersectionObserver((entries) => {
+    const entry = entries[0];
+    if (!entry) return;
+
+    if (entry.isIntersecting) {
+      // 看到 illustration 了 -> 显示
+      topBtn.classList.add('visible');
+    } else {
+      // 看不到 illustration 了 -> 若不是在回顶动画中，就隐藏
+      if (!isReturning && window.scrollY > 5) {
+        topBtn.classList.remove('visible');
+      }
+    }
+  }, {
+    root: null,
+    threshold: 0.12 // 看到大约 12% 就算可见，你可按喜好微调
+  });
+
+  io.observe(illu);
+
+  // 防御性：当回到页面最上方，也确保隐藏
+  window.addEventListener('scroll', () => {
+    if (!isReturning && window.scrollY <= 5) {
+      topBtn.classList.remove('visible');
+    }
+  });
+});
 

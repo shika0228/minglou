@@ -73,24 +73,16 @@ header {
   width: 100%;
   height: 90px;
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  /* 只管把 nav 推到右边 */
+  align-items:center;
+  justify-content:space-between;
   background-image: url('./img/Dots.svg');
   position: relative;
-  padding-right: 8vw;
-  /* 给 nav 保持右边距 */
+  padding:0 8vw;
   box-sizing: border-box;
-  /* 避免撑开 */
 }
 
 .header-logo {
-  position: fixed;
   top: 0;
-  /* 距离顶部位置，可以自己调 */
-  left: 4vw;
-  /* 距离左边位置，可以自己调 */
-  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -126,7 +118,6 @@ header {
 }
 
 .nav-wrap ul {
-
   height: 45px;
   padding: 0;
   display: flex;
@@ -164,6 +155,42 @@ header {
 
 .nav-wrap ul li a:hover {
   color: #956BAC;
+}
+/* === Hamburger 基本样式（所有尺寸可见，但只在小屏启用抽屉） === */
+.hamburger{
+  position: fixed;
+  top: 22px;
+  right: 6vw;
+  width: 42px;
+  height: 34px;
+  z-index: 30000;
+  display: grid;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.hamburger span{
+  display: block;
+  height: 4px;
+  border-radius: 4px;
+  background: #956BAC;
+  transition: transform .25s ease, opacity .2s ease, width .25s ease;
+}
+.hamburger span:nth-child(1){ width: 100%; }
+.hamburger span:nth-child(2){ width: 80%;  justify-self: end; }
+.hamburger span:nth-child(3){ width: 100%; }
+
+/* 打开状态的“X”动画 */
+.hamburger.is-open span:nth-child(1){
+  transform: translateY(10px) rotate(45deg);
+}
+.hamburger.is-open span:nth-child(2){
+  opacity: 0;
+}
+.hamburger.is-open span:nth-child(3){
+  transform: translateY(-10px) rotate(-45deg);
 }
 
 /*-------------main------------*/
@@ -292,7 +319,7 @@ main {
   max-height: 95vh;
   object-fit: contain;
   margin-left: 10vw;
-  animation: float 2.5s ease-in-out infinite;
+  animation: float-large 2.5s ease-in-out infinite;
 }
 
 .profile-img-text {
@@ -376,8 +403,6 @@ main {
   justify-content: center;
   text-align: center;
   font-size: 16px;
-  font-family: "Noto Serif SC", serif;
-  font-weight: 600;
   line-height: 2em;
   letter-spacing: 0.1em;
   padding: 8vh 0;
@@ -393,10 +418,11 @@ main {
   font-weight: 600;
   letter-spacing: 0.05em;
   padding-top: 8vh;
+  color:#956BAC;
 }
 
 .profile-text-wrap h3 span {
-  color: #939393;
+  color: #D0B9DC;
 }
 
 .profile-short-text {
@@ -544,18 +570,13 @@ main {
   overflow: visible;
   perspective: 1200px;
 }
-
-/* 每个slide改为绝对定位到容器中心，再由JS横向错位与缩放 */
 .carousel .carousel-wrap {
   position: absolute;
   top: 40%;
   left: 50%;
   width: 20%;
-  /* 改成相对父容器的百分比宽度 */
-  max-width: 300px;
-  /* 限制最大宽度，避免超大屏太夸张 */
+  max-width:500px;
   aspect-ratio: 3 / 4;
-  /* 自动保持3:4比例，不再写死px高度 */
   transform: translate(-50%, -50%);
   transition: transform .6s ease, opacity .6s ease, filter .6s ease;
   will-change: transform, opacity, filter;
@@ -566,11 +587,9 @@ main {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* 保持填充，不会变形 */
   display: block;
 }
 
-/* 让背景灰条保留 */
 .version-deco-bg {
   z-index: -1;
   position: absolute;
@@ -588,7 +607,6 @@ main {
   display: flex;
   align-items: center;
   gap: 60px;
-  /* 左右两个按钮组之间的间距 */
   user-select: none;
   z-index: 999;
   /* 确保按钮永远在图片上层 */
@@ -598,7 +616,6 @@ main {
   display: flex;
   align-items: center;
   gap: 8px;
-  /* 文字和按钮的紧密度 */
 }
 
 .ctrl-label {
@@ -607,23 +624,17 @@ main {
   font-size: 16px;
   color: #666;
   line-height: 1;
-  /* 避免文字上下偏移 */
   display: flex;
   align-items: center;
-  /* 让文字与按钮垂直居中 */
 }
 
-/* 左边组：文字在按钮左侧 */
 .ctrl-group:first-child .ctrl-label {
   order: -1;
 }
 
-/* 右边组：文字在按钮右侧 */
 .ctrl-group:last-child .ctrl-label {
   order: 1;
 }
-
-/* 按钮样式保持 */
 .nav-btn {
   width: 44px;
   height: 44px;
@@ -646,7 +657,6 @@ main {
   transform: translateY(0);
 }
 
-/* 白色箭头 */
 .nav-btn .tri {
   display: block;
   width: 0;
@@ -733,12 +743,8 @@ main {
   object-fit: contain;
   pointer-events: none;
   will-change: transform;
-  /* 提升滚动性能 */
   z-index: -1;
-  /* 若需在内容后面显示 */
 }
-
-/* 用户偏好“减少动效”时，禁用视差 */
 @media (prefers-reduced-motion: reduce) {
   .heart-bg {
     transform: none !important;
@@ -747,33 +753,27 @@ main {
 
 .gallery {
   columns: 3;
-  /*段組みの数*/
   padding: 0 10px;
-  /*ギャラリー左右に余白をつける*/
   margin: 0;
 }
 
 .gallery li {
   margin-bottom: 20px;
-  /*各画像下に余白をつける*/
   list-style: none;
   overflow: hidden;
 }
 
-/*ギャラリー内のイメージは横幅100%にする*/
 .gallery img {
   width: 100%;
   height: auto;
   transition: transform 0.3s ease-in-out;
   vertical-align: bottom;
-  /*画像の下にできる余白を削除*/
 }
 
 .gallery img:hover {
   transform: scale(1.1);
 }
 
-/*　横幅900px以下の段組み設定　*/
 @media only screen and (max-width: 900px) {
   .gallery {
     columns: 3;
@@ -840,7 +840,6 @@ main {
   position: absolute;
   bottom: 200px;
   will-change: transform;
-  /* 新增：提升滚动变换的流畅度 */
 }
 
 footer {
@@ -855,13 +854,38 @@ footer {
   align-items: center;
   justify-content: center;
 }
-
+.top-btn{
+  position: fixed;     /* 关键：固定到视口 */
+  z-index: 20000;      /* 顶层 */
+  bottom: 18vh;
+  right: 8vw;
+  padding: 0;
+  animation: float-large 2.5s ease-in-out infinite;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .4s ease;
+}
+@keyframes float-large {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-25px); } /* 浮动高度更大 */
+  100% { transform: translateY(0); }
+}
+.top-btn.visible{
+  opacity: 1;
+  pointer-events: auto;
+}
+.top-btn img{
+  width:120px;
+}
 /*-----responsive-------*/
 @media only screen and (max-width:1024px) {
+.header{
+  padding:0 5vw;
+}
   .main-copy {
     width: 100%;
     min-width: 200px;
-    padding: 0;
+    padding:0;
     margin-top:-25px;
     display: flex;
     align-items: center;
@@ -943,6 +967,7 @@ footer {
   }
   .illustration {
     padding-bottom: 10vh;
+    
   }
   .ending-animation {
     width: 100%;
@@ -953,21 +978,17 @@ footer {
   .progress-bar {
     width: 240px;
   }
-
-  header {
-    padding-right:0;
-    /* 给 nav 保持右边距 */
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-
+.header-logo{
+  display:none;}
+header{
+  justify-content:center;
+  padding:0;
+}
   .nav-wrap {
     display: flex;
     align-items: center;
     height: 45px;
   }
-
   .nav-wrap ul {
     height: 45px;
     padding: 0;
@@ -1130,6 +1151,10 @@ footer {
     width: 100%;
     height:20vh;
 }
+.top-btn{
+  bottom:5vh;
+  right:5vw;
+}
 }
 /* === Carousel drag/swipe helpers === */
 #costume-carousel {
@@ -1141,14 +1166,9 @@ footer {
 #costume-carousel.carousel-dragging {
   cursor: grabbing;
 }
-
-
-/* Improve touch behavior: allow vertical scroll but capture horizontal swipe */
 #costume-carousel { touch-action: pan-y; }
-
-/* Prevent native image dragging/ghosting inside carousel */
 #costume-carousel img {
   -webkit-user-drag: none;
   user-drag: none;
-  pointer-events: none; /* 不挡住上层容器的点击/拖拽 */
+  pointer-events: none;
 }
