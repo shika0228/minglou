@@ -1155,6 +1155,9 @@ header{
   bottom:5vh;
   right:5vw;
 }
+.top-btn img{
+  width:90px;
+}
 }
 /* === Carousel drag/swipe helpers === */
 #costume-carousel {
